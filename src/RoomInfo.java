@@ -6,6 +6,7 @@ public class RoomInfo {
 	int capacity;
 	String roomName;
 	boolean gameOn;
+	String answer;
 	ArrayList<UserInfo> userAl;
 	
 	public RoomInfo() {
@@ -13,6 +14,7 @@ public class RoomInfo {
 		capacity = 0;
 		gameOn = false;
 		roomName = "";
+		answer = "¹®±â";
 		userAl = new ArrayList();
 		
 	}

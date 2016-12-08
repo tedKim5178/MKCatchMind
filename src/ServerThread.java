@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class ServerThread extends Thread{
 	private Socket socket = null;
@@ -22,6 +24,9 @@ public class ServerThread extends Thread{
 	//String id = null;
 	UserInfo user = null;
 	String roomName;
+	
+	// 타이머 관련
+	StopWatch sw = null;
 	
 	public ServerThread(Socket socket, ArrayList<UserInfo> userAl, ArrayList<RoomInfo> roomAl) {
 		// TODO Auto-generated constructor stub
@@ -68,9 +73,39 @@ public class ServerThread extends Thread{
 				// 앞에 10이 붙어서 오면 GameRoom 의 채팅이란 소리임.
 				case 10 :
 				{
+					// 들어온 유저가 게임 중이면! 체크해준다.
+					
 					// 클라이언트로 보낼 메세지 만들자
-					this.msg = "10;" + st.nextToken() + ";" + st.nextToken();
-					System.out.println("@@"+msg);
+					String id = st.nextToken();
+					String sendMsg = st.nextToken();
+					int flag = 0;
+					
+					System.out.println("Send Msg : " + sendMsg);
+					if(user.gameOn == true)
+					{
+						System.out.println("처음 그냥 메세지보내면 나옴?");
+						// 뭘 체크해줘? 방금 들어온 메세지를 !
+						// 해당 유저가 속해 있는 방을 찾자.
+						for(int i=0; i<roomAl.size(); i++){
+							if(roomAl.get(i).roomName.equals(user.roomName)){
+								System.out.println("RoomNAme : "+roomAl.get(i).roomName);
+								System.out.println("Room의 ANswer : " + roomAl.get(i).answer);
+								if(roomAl.get(i).answer.equals(sendMsg)){
+									System.out.println("@#!#!@#!@#!@#!#");
+									flag = 1;
+									//sw.time = 0;
+									
+								}
+							}
+						}
+						for(int i=0; i<userAl.size(); i++){
+							if(userAl.get(i).roomName.equals(user.roomName)){
+								user.gameOn = false;
+							}
+						}
+					}
+					this.msg = "10;" + id + ";" + sendMsg + ";" + flag;
+					
 					// 이제 보내는데 다보내는게 아니고 게임방에 있는 사람들한테만 보내준다.
 					// 유저들중에 해당 게임방 이름이 user.roomName과 똑같은 애들한테만 보내준다.
 					synchronized(userAl){
@@ -243,6 +278,7 @@ public class ServerThread extends Thread{
 					break;
 				}
 				// 방장이 게임 시작 눌렀을때
+				// 이때 타이머도 동작해야한다.
 				case 500 :
 				{
 					// 게임시작 된거니까 해당 방에 있는 유저들한테 게임 시작 했다고 다 보내줘야됨.
@@ -250,8 +286,18 @@ public class ServerThread extends Thread{
 					String roomName = user.roomName;
 					// 해당 방에 있는 유저들의 gameOn을 다 true로 바꿔주고
 					// 해당 방에 있는 유저들한테만 게임 시작됬다고 메세지를 보낸다. 그럼 이제 그림판 그릴 수 있게 해줘야함.
+					// 보내줄때 문제도 보내주자.
+					Question question = new Question();
+					String answer = question.setQuestion();
+					// 유저가 속해있는 방에 answer 바꿔주자.
+					for(int i=0; i<roomAl.size(); i++){
+						if(roomAl.get(i).roomName.equals(roomName)){
+							roomAl.get(i).answer = answer;
+							System.out.println("해당방의 answer" + roomAl.get(i).answer);
+						}
+					}
 					
-					this.msg = "500;" + id + ";" + roomName +";";
+					this.msg = "500;" + id + ";" + roomName +";" + answer;
 					System.out.println(msg);
 					synchronized(userAl){
 						for(int i=0; i<userAl.size(); i++){
@@ -263,6 +309,15 @@ public class ServerThread extends Thread{
 							}
 						}
 					}
+					
+					// 이 메세지를 받은 애들은 게임을 그릴 수 있게 되는데 두명빼고 6명 한테는 문제를 보여줘야뎀.
+					// 우선 이 코드와는 별개로 턴을 바꿔보자. 그리고 출력해보자.
+					// 우선 해당 방에 있는 턴을 출력해보자.
+
+					//sw = new StopWatch(userAl, roomAl, roomName);
+					//sw.start();
+					
+					
 					break;
 				}
 				case 900 :
@@ -316,6 +371,7 @@ public class ServerThread extends Thread{
 								user.roomName = "";
 								roomAl.remove(i);
 								delete = true;
+								// 없애주면서 
 							}else{
 								// roomList(roomAl) 에서 해당 유저 찾은다음에 이 유저 빼주고 capacity 하나 줄여줘야됨.
 								user.roomName = "";

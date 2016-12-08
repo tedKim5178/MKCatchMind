@@ -52,5 +52,6 @@ public class Client extends JFrame{
 			// TODO: handle exception
 			e.printStackTrace();
 		}
+		System.out.println("???");
 	}
 }

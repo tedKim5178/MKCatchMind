@@ -37,6 +37,9 @@ public class GameRoom extends JFrame implements MouseMotionListener, MouseListen
 	JScrollPane jsP = new JScrollPane();
 	JTextField text = new JTextField();
 	
+	// StopWatch
+	JTextArea watch = new JTextArea();
+	
 	// userlist
 	List userListField = null;
 	
@@ -105,25 +108,32 @@ public class GameRoom extends JFrame implements MouseMotionListener, MouseListen
 	// 우선 게임방은 채팅 할 수 있는 채팅 창, 게임이 보여지는 게임창, 들어와있는 유저들이 있는 유저들!
 	public void init(){
 		this.setLayout(null);
-		this.setBounds(100,100,1000,1000);
+		this.setBounds(100,100,1000,1200);
+		this.setBackground(Color.BLACK);
 		canvas = new JPanel();
 		canvas.setBorder(new LineBorder(new Color(0,0,0)));
 		canvas.setBounds(190,12,674,541);
 		canvas.setLayout(null);
+		canvas.setBackground(Color.WHITE);
 		this.getContentPane().add(canvas, null);
 		
 		// 채팅창 넣자
-		chatting.setBounds(100,600,600,500);
+		chatting.setBounds(190,553,674,200);
 		chatting.setLayout(null);
-		area.setBounds(0,0,500,100);
-		text.setBounds(0,160,500,20);
+		area.setBounds(0,0,674,100);
+		text.setBounds(0,160,674,20);
+		
 		area.setEditable(false);
 		jsP.setAutoscrolls(true);
-		jsP.setBounds(0,0,500,160);
+		jsP.setBounds(0,0,674,160);
 		this.getContentPane().add(chatting, null);
 		chatting.add(area, null);
 		chatting.add(text, null);
 		chatting.add(jsP, null);
+		
+		// 스탑워치
+		watch.setBounds(0,350,100,200);
+		this.getContentPane().add(watch, null);
 		
 		// 유저 리스트
 		userListField = new List();
@@ -135,7 +145,7 @@ public class GameRoom extends JFrame implements MouseMotionListener, MouseListen
 		exit = new JButton("나가기");
 		start = new JButton("게임시작");
 		
-		buttons.setBounds(650, 600, 300, 300);
+		buttons.setBounds(650, 800, 300, 300);
 		buttons.setLayout(null);
 		exit.setBounds(150, 0, 150, 150);
 		start.setBounds(0, 0, 150, 150);
@@ -403,21 +413,30 @@ public class GameRoom extends JFrame implements MouseMotionListener, MouseListen
 				e2.printStackTrace();
 			}
 		}else if(ob == start){
+
+			// 겜 시작 test
+			
 			// 게임 start 했다는거 보내줘야하는데 이거 우선 방장만 할 수 있게 만들어주자. 현재 유저 정보가 있을 것이다 방 만들기 눌렀을때만 유저 정보를 바꿔주자.
 			// input을 쓰레드로 받는다고 가정 하면 메세지 안에 방장 정보 바꾸는 것이 들어가 있어야 할 것이다. 이거 우선 고민해보고 아직은 쓰레드 고민하지 말고 해보자.
 			if(user.host == true){
 				// JOptionPane.showMessageDialog(null, "방장이 맞습니다.");
 				// 이거 대신에 방장이 게임 시작했다는 메세지를 보내면 서버에서 해당 방에 들어있는 유저들의 게임중 상태를
 				// true로 다 바꿔줘야함..!
-				user.gameOn = true;
-				String msg = "500;" + id + ";" + user.roomName + ";";
-				try {
-					pw.println(msg);
-					pw.flush();
-				} catch (Exception e2) {
-					// TODO: handle exception
-				}
-			}else{					// 방장이 아니면
+				
+				if(user.gameOn == false){
+					
+					user.gameOn = true;
+				
+					String msg = "500;" + id + ";" + user.roomName + ";";
+					try {
+						pw.println(msg);
+						pw.flush();
+					} catch (Exception e2) {
+						// TODO: handle exception
+					}
+				}	
+			}
+			else{					// 방장이 아니면
 				JOptionPane.showMessageDialog(null, "방장이 아닙니다.");
 			}
 		}else if(ob == exit){
@@ -441,5 +460,9 @@ public class GameRoom extends JFrame implements MouseMotionListener, MouseListen
 	      }
 	}
 	
+	public static void main(String[] args) {
+		GameRoom gr = new GameRoom();
+		gr.init();
+	}
 	
 }

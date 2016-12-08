@@ -1,6 +1,8 @@
 import java.io.BufferedReader;
 import java.util.StringTokenizer;
 
+import javax.swing.JOptionPane;
+
 public class ClientThread extends Thread{
 	UserInfo user;
 	BufferedReader br;
@@ -48,8 +50,14 @@ public class ClientThread extends Thread{
 				// 10은 게임방 속에서 채팅 하는 것이다. 0은 대기방이므로 분류가 필요하다.
 				String senderId = st.nextToken();
 				String text = st.nextToken();
+				String flag = st.nextToken();
 				lv.room.gameRoom.area.append(senderId + " : " + text + "\n");
 				lv.room.gameRoom.area.setAutoscrolls(true);
+				// 만약에 정답이면
+				if(flag.equals("1")){
+					JOptionPane.showMessageDialog(null, "문제를 맞췄습니다.");
+					user.gameOn = false;
+				}
 				break;
 			}
 			case 100 : 
@@ -130,11 +138,23 @@ public class ClientThread extends Thread{
 			{
 				String id = st.nextToken();
 				String roomName = st.nextToken();
-				System.out.println("User.roomName은?? : " + user.roomName);
-				System.out.println("지금 들어온 roomName은? : " + roomName);
+				
+				// 문제
+				String answer = st.nextToken();
+				
 				if(user.roomName.equals(roomName)){
 					user.gameOn = true;
 				}
+				
+				System.out.println("문제@@@@@@@@@@" + answer);
+				
+				break;
+				
+			}
+			case 700 :
+			{
+				String time = st.nextToken();
+				lv.room.gameRoom.watch.setText(time);
 				break;
 			}
 			case 900 :
